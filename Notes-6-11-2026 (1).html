@@ -1,0 +1,211 @@
+<html>
+        <head><title>Downloaded HTML</title></head>
+        <body>
+            <pre style="white-space: pre-wrap; word-wrap: break-word;">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ICT Brain Quest</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;min-height:100vh;padding:20px;
+ background:linear-gradient(135deg,#080d2d,#123e75,#087caa);
+ font-family:Arial,sans-serif;color:white;text-align:center
+}
+.container{
+ max-width:700px;margin:25px auto;padding:25px 18px;
+ background:#101c40;border:2px solid #39dfff;
+ border-radius:22px;box-shadow:0 0 25px #00cfff55
+}
+h1{color:#48e5ff;font-size:34px}
+h2{color:#ffe66d}
+button{
+ border:0;border-radius:12px;padding:14px 20px;
+ margin:8px;background:#27d7f5;color:#071a35;
+ font-weight:bold;font-size:15px;cursor:pointer
+}
+button:hover{background:#ffe66d}
+.option{display:block;width:95%;max-width:450px;margin:12px auto}
+button:disabled{opacity:.6;cursor:not-allowed}
+.bar{height:12px;background:#263a63;border-radius:20px;overflow:hidden}
+#progress{height:100%;width:0;background:#48e5ff;transition:.3s}
+.stat{color:#ffe66d;font-weight:bold}
+#game,#finish{display:none}
+.level{
+ display:inline-block;padding:12px;margin:7px;
+ border:1px solid #39dfff;border-radius:12px;
+ color:#48e5ff
+}
+#feedback{min-height:35px;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🧠 ICT BRAIN QUEST</h1>
+<p>THE ULTIMATE LEVEL-UP CHALLENGE</p>
+
+<div id="home">
+ <h2>Ready to test your ICT skills?</h2>
+ <p>Answer correctly, survive every level, and become an ICT Master!</p>
+ <div>
+  <span class="level">🟢 Level 1</span>
+  <span class="level">🔵 Level 2</span>
+  <span class="level">🟡 Level 3</span>
+  <span class="level">🟠 Level 4</span>
+  <span class="level">🔴 Level 5</span>
+ </div>
+ <p>❤️ 3 Lives | 🏆 Earn points | 🔓 Unlock levels</p>
+ <button onclick="start()">START ADVENTURE 🚀</button>
+</div>
+
+<div id="game">
+ <h2 id="levelName"></h2>
+ <div class="bar"><div id="progress"></div></div>
+ <p class="stat">Question <span id="number"></span>/5</p>
+ <p class="stat">⭐ Score: <span id="score">0</span></p>
+ <p class="stat">❤️ Lives: <span id="lives">3</span></p>
+ <h3 id="question"></h3>
+ <div id="options"></div>
+ <p id="feedback"></p>
+ <button id="next" onclick="next()" style="display:none">NEXT ➜</button>
+</div>
+
+<div id="finish">
+ <h1 id="resultTitle">🎉</h1>
+ <h2 id="resultText"></h2>
+ <p id="resultScore"></p>
+ <button onclick="start()">PLAY AGAIN 🔄</button>
+</div>
+</div>
+
+<script>
+const levels=[
+{
+ name:"LEVEL 1 - BEGINNER",
+ q:[
+ ["What does ICT stand for?",["Information and Communications Technology","Internet Computer Tools","International Coding Team","Information Control Training"],0],
+ ["Which device is used for typing?",["Mouse","Keyboard","Monitor","Speaker"],1],
+ ["What is the brain of a computer?",["CPU","Printer","Mouse","RAM"],0],
+ ["Which device displays images?",["Scanner","Keyboard","Monitor","Microphone"],2],
+ ["Which one is a web browser?",["Excel","Chrome","Word","Paint"],1]
+ ]},
+{
+ name:"LEVEL 2 - EASY",
+ q:[
+ ["What does RAM stand for?",["Read Access Memory","Random Access Memory","Run All Memory","Rapid Application Machine"],1],
+ ["Which is an output device?",["Keyboard","Mouse","Printer","Scanner"],2],
+ ["What is the shortcut for Copy on Windows?",["Ctrl + C","Ctrl + V","Ctrl + X","Ctrl + Z"],0],
+ ["Which is used to store files permanently?",["RAM","SSD","Cache","CPU"],1],
+ ["What does URL mean?",["Uniform Resource Locator","Universal Reading Link","User Reference List","Unified Router Link"],0]
+ ]},
+{
+ name:"LEVEL 3 - INTERMEDIATE",
+ q:[
+ ["Which protocol is commonly used for secure web browsing?",["FTP","HTTP","HTTPS","SMTP"],2],
+ ["What is phishing?",["A computer upgrade","A trick to steal sensitive information","A programming language","A file format"],1],
+ ["Which number system uses only 0 and 1?",["Decimal","Octal","Hexadecimal","Binary"],3],
+ ["What does DNS do?",["Encrypts every file","Translates domain names into IP addresses","Creates websites","Repairs hardware"],1],
+ ["Which is an example of cloud storage?",["Google Drive","Calculator","BIOS","Task Manager"],0]
+ ]},
+{
+ name:"LEVEL 4 - ADVANCED",
+ q:[
+ ["What does SQL primarily manage?",["Computer graphics","Relational databases","Internet speed","Operating systems"],1],
+ ["Which HTML element creates a hyperlink?",["<img>","<p>","<a>","<h1>"],2],
+ ["What is the main purpose of a firewall?",["Cool the CPU","Filter network traffic","Increase screen size","Compress images"],1],
+ ["Which CSS property changes text color?",["font-style","background-image","color","padding"],2],
+ ["What does API stand for?",["Application Programming Interface","Advanced Program Internet","Automated Processing Input","Application Protocol Integration"],0]
+ ]},
+{
+ name:"LEVEL 5 - ICT MASTER",
+ q:[
+ ["Which algorithmic technique solves problems by breaking them into overlapping smaller subproblems?",["Bubble sort","Dynamic programming","Linear search","Selection sort"],1],
+ ["What is the time complexity of binary search on a sorted array?",["O(n)","O(n²)","O(log n)","O(1)"],2],
+ ["Which SQL command retrieves records from a table?",["SELECT","DELETE","DROP","UPDATE"],0],
+ ["In networking, what does DHCP automatically assign?",["Domain names","IP configuration","File permissions","Encryption keys"],1],
+ ["What does the principle of least privilege mean?",["Give users administrator access","Give only the access necessary for their tasks","Share all account passwords","Disable authentication"],1]
+ ]}
+];
+
+let level=0,index=0,score=0,lives=3,answered=false;
+
+function start(){
+ level=0;index=0;score=0;lives=3;
+ document.getElementById("home").style.display="none";
+ document.getElementById("finish").style.display="none";
+ document.getElementById("game").style.display="block";
+ show();
+}
+
+function show(){
+ answered=false;
+ let data=levels[level].q[index];
+ document.getElementById("levelName").textContent=levels[level].name;
+ document.getElementById("number").textContent=index+1;
+ document.getElementById("score").textContent=score;
+ document.getElementById("lives").textContent=lives;
+ document.getElementById("question").textContent=data[0];
+ document.getElementById("feedback").textContent="";
+ document.getElementById("next").style.display="none";
+ document.getElementById("progress").style.width=((index+1)/5*100)+"%";
+ let area=document.getElementById("options");
+ area.innerHTML="";
+ data[1].forEach((choice,i)=>{
+  let b=document.createElement("button");
+  b.className="option";
+  b.textContent=String.fromCharCode(65+i)+". "+choice;
+  b.onclick=()=>answer(i,b);
+  area.appendChild(b);
+ });
+}
+
+function answer(i,btn){
+ if(answered)return;
+ answered=true;
+ let correct=levels[level].q[index][2];
+ document.querySelectorAll(".option").forEach(b=>b.disabled=true);
+ if(i===correct){
+  score+=(level+1)*10;
+  btn.style.background="#46df92";
+  document.getElementById("feedback").textContent="✅ CORRECT! +" + ((level+1)*10) + " POINTS!";
+ }else{
+  lives--;
+  btn.style.background="#ff7373";
+  document.getElementById("feedback").textContent=
+  "❌ Wrong! Answer: "+levels[level].q[index][1][correct];
+ }
+ document.getElementById("score").textContent=score;
+ document.getElementById("lives").textContent=lives;
+ document.getElementById("next").style.display="inline-block";
+}
+
+function next(){
+ if(lives<=0){end(false);return;}
+ index++;
+ if(index<5){show();return;}
+ if(level<4){
+  level++;index=0;
+  alert("🎉 LEVEL UNLOCKED! Get ready for a harder challenge!");
+  show();
+ }else end(true);
+}
+
+function end(won){
+ document.getElementById("game").style.display="none";
+ document.getElementById("finish").style.display="block";
+ document.getElementById("resultTitle").textContent=
+ won?"🏆 ICT MASTER!":"💔 GAME OVER!";
+ document.getElementById("resultText").textContent=
+ won?"YOU COMPLETED ALL 5 LEVELS!":"Don't give up! Try again!";
+ document.getElementById("resultScore").textContent=
+ "Final Score: "+score+" points | Reached Level "+(level+1);
+}
+</script>
+</body>
+</html>
+</pre>
+        </body>
+    </html>
